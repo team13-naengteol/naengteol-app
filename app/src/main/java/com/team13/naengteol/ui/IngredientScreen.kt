@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,16 +32,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.team13.naengteol.data.ALL_INGREDIENTS
-
-private val HeaderYellow = Color(0xFFFFDF79)
-private val SelectedYellow = Color(0xFFFFF2C3)
-private val Ink = Color(0xFF322916)
-private val PageBackground = Color(0xFFFFFCF6)
+import com.team13.naengteol.ui.components.PillButton
+import com.team13.naengteol.ui.components.YellowHeader
 
 private val ingredientSymbols = mapOf(
     "달걀" to "🥚",
@@ -63,18 +57,17 @@ fun IngredientScreen(
     var query by rememberSaveable { mutableStateOf("") }
     val visibleIngredients = ALL_INGREDIENTS.filter { it.contains(query.trim(), ignoreCase = true) }
 
+    val colors = MaterialTheme.colorScheme
+
     Column(
-        Modifier.fillMaxSize().background(PageBackground).imePadding()
+        Modifier.fillMaxSize().background(colors.background).imePadding()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(HeaderYellow, RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        YellowHeader(
+            title = "냉장고에 뭐가 있나요?",
+            trailing = {
+                Text("냉털", color = colors.onPrimaryContainer, style = MaterialTheme.typography.labelLarge)
+            }
         ) {
-            Text("냉털", color = Ink, style = MaterialTheme.typography.labelLarge)
-            Text("냉장고에 뭐가 있나요?", color = Ink, style = MaterialTheme.typography.headlineSmall)
             TextField(
                 value = query,
                 onValueChange = { query = it },
@@ -83,22 +76,22 @@ fun IngredientScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedTextColor = Ink,
-                    unfocusedTextColor = Ink,
-                    focusedLabelColor = Ink,
-                    unfocusedLabelColor = Ink,
-                    cursorColor = Ink,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    focusedContainerColor = colors.surfaceContainerLowest,
+                    unfocusedContainerColor = colors.surfaceContainerLowest,
+                    focusedTextColor = colors.onSurface,
+                    unfocusedTextColor = colors.onSurface,
+                    focusedLabelColor = colors.onSurface,
+                    unfocusedLabelColor = colors.onSurface,
+                    cursorColor = colors.onSurface,
+                    focusedIndicatorColor = colors.surfaceContainerLowest,
+                    unfocusedIndicatorColor = colors.surfaceContainerLowest
                 )
             )
         }
 
         if (visibleIngredients.isEmpty()) {
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Text("검색 결과가 없어요", color = Ink)
+                Text("검색 결과가 없어요", color = colors.onBackground)
             }
         } else {
             LazyVerticalGrid(
@@ -116,7 +109,7 @@ fun IngredientScreen(
             }
         }
 
-        Surface(color = Color.White, contentColor = Ink, shadowElevation = 4.dp) {
+        Surface(color = colors.surfaceContainerLowest, contentColor = colors.onSurface, shadowElevation = 4.dp) {
             Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
                 Row(
                     Modifier.fillMaxWidth().heightIn(min = 48.dp),
@@ -126,23 +119,16 @@ fun IngredientScreen(
                     Text("재료 ${selected.size}개 선택", style = MaterialTheme.typography.titleSmall)
                     if (selected.isNotEmpty()) {
                         TextButton(onClick = { selected = arrayListOf() }) {
-                            Text("선택 초기화", color = Ink)
+                            Text("선택 초기화", color = colors.secondary)
                         }
                     }
                 }
-                Button(
+                PillButton(
+                    text = "레시피 추천받기",
                     onClick = { onRecommend(selected.toSet()) },
                     enabled = selected.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = HeaderYellow,
-                        contentColor = Ink,
-                        disabledContainerColor = Color(0xFFF1EEE7),
-                        disabledContentColor = Color(0xFF6E6659)
-                    )
-                ) {
-                    Text("레시피 추천받기")
-                }
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
@@ -150,11 +136,13 @@ fun IngredientScreen(
 
 @Composable
 private fun IngredientCard(name: String, selected: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+
     Surface(
         shape = RoundedCornerShape(18.dp),
-        color = if (selected) SelectedYellow else Color.White,
-        contentColor = Ink,
-        border = BorderStroke(1.dp, if (selected) Color(0xFF997020) else Color(0xFFE9E1D2))
+        color = if (selected) colors.secondaryContainer else colors.surfaceContainerLowest,
+        contentColor = if (selected) colors.onSecondaryContainer else colors.onSurface,
+        border = BorderStroke(1.dp, if (selected) colors.secondary else colors.outlineVariant)
     ) {
         Box(
             Modifier
