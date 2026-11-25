@@ -1,0 +1,6 @@
+# 줄바꿈 통일: 저장소에는 항상 LF로 저장 (Windows/Mac 섞여 있어도 충돌 방지)
+* text=auto eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary
+*.webp binary

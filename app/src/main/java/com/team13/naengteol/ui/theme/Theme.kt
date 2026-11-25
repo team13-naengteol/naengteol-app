@@ -1,58 +1,70 @@
 package com.team13.naengteol.ui.theme
 
-import android.app.Activity
-import android.os.Build
+// 담당: 윤정민 (1번) — 앱 전체 테마
+// 화면 코드에서는 색을 직접 쓰지 말고 MaterialTheme.colorScheme.primary 처럼 가져다 쓰기
+//  - 노란 버튼/영역: primary, primaryContainer (그 위 글자는 onPrimary, onPrimaryContainer)
+//  - 흰 배경 위 강조 글자: secondary
+//  - "부족" 표시: tertiary
+
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
+import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
+    primary = Yellow500,
+    onPrimary = Ink,
+    primaryContainer = Yellow300,
+    onPrimaryContainer = Ink,
+    secondary = Gold700,
     onSecondary = Color.White,
+    secondaryContainer = Yellow100,
+    onSecondaryContainer = Ink,
+    tertiary = Red600,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    tertiaryContainer = Red100,
+    onTertiaryContainer = Color(0xFF5C120A),
+    background = Paper,
+    onBackground = Ink,
+    surface = Paper,
+    onSurface = Ink,
+    surfaceVariant = Color(0xFFEFEBE0),
+    onSurfaceVariant = Color(0xFF5B574C),
+    outline = Color(0xFF8A857A),
+    surfaceContainerLowest = CardWhite,
+    surfaceContainerLow = CardWhite,
+    surfaceContainer = CardWhite,          // 카드 기본 배경 (레퍼런스처럼 흰 카드)
+    surfaceContainerHigh = Color(0xFFF8F5EC),
+    surfaceContainerHighest = Color(0xFFF1EDE2)
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = YellowDark,
+    onPrimary = YellowDarkOn,
+    primaryContainer = Color(0xFF5A4700),
+    onPrimaryContainer = Yellow300,
+    secondary = Color(0xFFE6C66A),
+    tertiary = RedDark,
+    background = DarkBackground,
+    surface = DarkBackground,
+    surfaceContainer = Color(0xFF221F18),
+    surfaceContainerHigh = Color(0xFF2C2921),
+    surfaceContainerHighest = Color(0xFF37332B)
 )
 
 @Composable
 fun NaengteolTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+    // 휴대폰 배경화면 색을 따라가는 Dynamic Color는 끔
+    // → 누구 폰에서 실행해도 냉털 노란색으로 똑같이 보이게
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
         typography = Typography,
+        shapes = NaengteolShapes,
         content = content
     )
 }
