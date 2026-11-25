@@ -7,7 +7,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -28,6 +33,14 @@ sealed interface Screen {
     data class Recommendation(val selected: Set<String>) : Screen
     data class Detail(val recipeId: Int, val selected: Set<String>) : Screen
 }
+
+// 화면 순서 (앞으로 가는지 뒤로 가는지 판단해서 애니메이션 방향을 정할 때 사용)
+private val Screen.depth: Int
+    get() = when (this) {
+        Screen.Ingredient -> 0
+        is Screen.Recommendation -> 1
+        is Screen.Detail -> 2
+    }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,8 +69,22 @@ fun NaengteolApp(modifier: Modifier = Modifier) {
         }
     }
 
-    Box(modifier) {
-        when (val s = screen) {
+    // 화면 전환 애니메이션: 앞으로 갈 때는 오른쪽에서, 뒤로 갈 때는 왼쪽에서 들어옴
+    AnimatedContent(
+        targetState = screen,
+        modifier = modifier,
+        transitionSpec = {
+            if (targetState.depth > initialState.depth) {
+                (slideInHorizontally { it } + fadeIn()) togetherWith
+                    (slideOutHorizontally { -it / 3 } + fadeOut())
+            } else {
+                (slideInHorizontally { -it / 3 } + fadeIn()) togetherWith
+                    (slideOutHorizontally { it } + fadeOut())
+            }
+        },
+        label = "screen"
+    ) { s ->
+        when (s) {
             Screen.Ingredient -> IngredientScreen(
                 initial = lastSelected,
                 onRecommend = { selected ->
