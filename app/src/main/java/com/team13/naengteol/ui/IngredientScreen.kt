@@ -38,15 +38,9 @@ import androidx.compose.ui.unit.dp
 import com.team13.naengteol.data.ALL_INGREDIENTS
 import com.team13.naengteol.ui.components.PillButton
 import com.team13.naengteol.ui.components.YellowHeader
+import com.team13.naengteol.data.INGREDIENT_EMOJI
 
-private val ingredientSymbols = mapOf(
-    "달걀" to "🥚",
-    "대파" to "🌿",
-    "밥" to "🍚",
-    "김치" to "🥬",
-    "두부" to "◻️",
-    "양파" to "🧅"
-)
+private val ingredientSymbols = INGREDIENT_EMOJI
 
 @Composable
 fun IngredientScreen(
