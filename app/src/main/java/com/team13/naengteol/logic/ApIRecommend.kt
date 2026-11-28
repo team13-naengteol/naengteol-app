@@ -1,3 +1,4 @@
+
 package com.team13.naengteol.logic
 
 import com.team13.naengteol.data.RecipeDto
@@ -21,36 +22,43 @@ private fun normalizeIngredient(value: String): String {
     }
 }
 
+// Convert the API ingredient text into individual ingredient names.
+private fun extractIngredients(text: String): List<String> {
+    return text
+        .split(Regex("[,\\n·]+"))
+        .map { part ->
+            part.trim()
+                .replace(Regex("\\s+.*$"), "")
+        }
+        .filter { it.isNotBlank() }
+        .map { normalizeIngredient(it) }
+        .distinct()
+}
+
 fun recommendApi(
     selected: Set<String>,
     recipes: List<RecipeDto>
 ): List<ApiRecommendResult> {
 
-    val selectedNormalized = selected.map { item ->
-        normalizeIngredient(item)
-    }
+    val selectedNormalized = selected
+        .map { normalizeIngredient(it) }
+        .toSet()
 
     return recipes.mapNotNull { recipe ->
 
-        val ingredientText = recipe.ingredients
-        val owned = selected.filter { ingredient ->
-            val normalized = normalizeIngredient(ingredient)
+        val recipeIngredients = extractIngredients(recipe.ingredients)
+        val recipeIngredientSet = recipeIngredients.toSet()
 
-            normalized.isNotBlank() &&
-                    ingredientText.contains(normalized)
-        }
-
-        val missing = ingredientText
-            .split(Regex("[,\\n·]+"))
-            .map { part -> part.trim() }
-            .filter { part -> part.isNotBlank() }
-            .filterNot { part ->
-                API_BASIC_SEASONINGS.any { seasoning -> part.contains(seasoning) } ||
-                        selectedNormalized.any { selectedItem ->
-                            part.contains(selectedItem)
-                        }
+        val owned = selected
+            .filter { ingredient ->
+                normalizeIngredient(ingredient) in recipeIngredientSet
             }
-            .distinct()
+
+        val missing = recipeIngredients
+            .filterNot { ingredient ->
+                ingredient in API_BASIC_SEASONINGS ||
+                        ingredient in selectedNormalized
+            }
             .take(8)
 
         if (owned.isEmpty()) {
@@ -63,7 +71,7 @@ fun recommendApi(
             )
         }
     }.sortedWith(
-        compareByDescending<ApiRecommendResult> { result -> result.owned.size }
-            .thenBy { result -> result.missing.size }
+        compareByDescending<ApiRecommendResult> { it.owned.size }
+            .thenBy { it.missing.size }
     )
 }
